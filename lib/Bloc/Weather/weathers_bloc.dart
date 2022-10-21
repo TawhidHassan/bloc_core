@@ -14,30 +14,34 @@ class WeathersBloc extends Bloc<WeathersEvent, WeathersState> {
    WeatherRepository? weatherRepository=WeatherRepository();
   WeathersBloc() : super(WeathersInitial()) {
 
-  }
 
-  @override
-  Stream<WeathersState> mapEventToState(WeathersEvent event) async*{
-    // TODO: implement mapEventToState
-    if (event is FetchWeather) {
-      yield WeatherLoading();
+    on<FetchWeather>((event, emit)async{
+      emit(WeatherLoading()) ;
       try {
         final Weather weather = await weatherRepository!.getWeather(event.city!);
-        yield WeatherLoaded(weather: weather);
+        emit( WeatherLoaded(weather: weather));
       } catch (error) {
         print(error);
-        yield WeatherError();
+        emit( WeatherError());
       }
-    } else if (event is RefreshWeather) {
+    });
+
+    on<RefreshWeather>((event, emit)async{
+      emit(WeatherLoading()) ;
       try {
         final Weather weather = await weatherRepository!.getWeather(event.city!);
-        yield WeatherLoaded(weather: weather);
+        emit (WeatherLoaded(weather: weather));
       } catch (error) {
         print("Error" + error.toString());
-        yield state;
+        emit (state);
       }
-    } else if (event is ResetWeather) {
-      yield WeatherEmpty();
-    }
+    });
+
+    on<ResetWeather>((event, emit)async{
+      emit(WeatherLoading()) ;
+     emit(WeatherEmpty());
+    });
+
+
   }
 }
